@@ -11,11 +11,44 @@ jobs:
           java-version: 17
       - name: Create App
         run: |
+          rm -rf app
           mkdir -p app/src/main/java/com/matreshka
           mkdir -p app/src/main/res/layout
-          echo 'include ":app"' > settings.gradle
-          echo 'plugins { id "com.android.application" version "8.2.2" apply false }' > build.gradle
-          echo 'plugins { id "com.android.application" } android { namespace "com.matreshka"; compileSdk 33; defaultConfig { applicationId "com.matreshka"; minSdk 24; targetSdk 33 } }' > app/build.gradle
+          cat > settings.gradle << 'EOF'
+          pluginManagement {
+            repositories {
+              google()
+              mavenCentral()
+              gradlePluginPortal()
+            }
+          }
+          dependencyResolutionManagement {
+            repositories {
+              google()
+              mavenCentral()
+            }
+          }
+          include ":app"
+          EOF
+          cat > build.gradle << 'EOF'
+          plugins {
+            id "com.android.application" version "8.1.4" apply false
+          }
+          EOF
+          cat > app/build.gradle << 'EOF'
+          plugins {
+            id "com.android.application"
+          }
+          android {
+            namespace "com.matreshka"
+            compileSdk 33
+            defaultConfig {
+              applicationId "com.matreshka"
+              minSdk 24
+              targetSdk 33
+            }
+          }
+          EOF
           echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>' > app/src/main/AndroidManifest.xml
           echo '<TextView xmlns:android="http://schemas.android.com/apk/res/android" android:text="MATRESHKA WORKS CHAT" android:layout_width="match_parent" android:layout_height="match_parent" />' > app/src/main/res/layout/activity_main.xml
           echo 'package com.matreshka; import android.app.Activity; import android.os.Bundle; public class MainActivity extends Activity { protected void onCreate(Bundle b){ super.onCreate(b); setContentView(R.layout.activity_main); } }' > app/src/main/java/com/matreshka/MainActivity.java
